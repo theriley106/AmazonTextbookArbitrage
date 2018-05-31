@@ -15,3 +15,10 @@ def isTradeInEligible(item):
 	return ('tradein' in item.select(TRADE_IN_REVIEW_BOX)[0])
 
 
+class amazonTextbookDB(object):
+	def __init__(self, arg):
+		self.arg = arg
+
+if __name__ == '__main__':
+	pass
+
