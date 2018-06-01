@@ -13,6 +13,7 @@ ITEM_SPECIFICS = ".a-text-left.a-col-right"
 BOOK_TITLE = ".s-access-title"
 BOOK_COVER = ".cfMarker"
 TRADE_IN_REVIEW_BOX = ".a-span-last"
+THREADS = 20
 
 
 def isTradeInEligible(item):
@@ -71,24 +72,40 @@ def extractInfoFromURL(url):
 
 def genURLs(keyword, pageCount):
 	urlList = []
-	for i in range(1, pageCount):
+	for i in range(1, pageCount+1):
 		url = AMAZON_URL.format(keyword, i)
 		urlList.append(url)
 	return urlList
 
 class search(object):
 	def __init__(self):
+		self.toSearch = []
 		self.results = []
 
-	def query(self, keyword):
+	def add(self, keyword):
 		url = AMAZON_URL.format(keyword, 1)
 		page = grabPage(url)
 		pageCount = getPageCount(page)
 		print("Keyword: {} Pages: {}".format(keyword, pageCount))
-		for i in range(1, pageCount):
-			if i != 1:
-				url = AMAZON_URL.format(keyword, i)
-				page = grabPage(url)
+		for url in genURLs():
+			self.toSearch(url)
+
+	def extractFromURL(self, url):
+		info = extractFromURL(url)
+		self.results.append(info)
+
+	def start(self):
+		threads = [threading.Thread(target=self.extractFromURL, args=(url,)) for url in self.toSearch]
+		for thread in threads:
+			thread.start()
+		for thread in threads:
+			thread.join()
+		return self.results
+
+
+
+
+
 
 
 
