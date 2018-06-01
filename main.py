@@ -52,7 +52,7 @@ def extractInfoFromItem(item):
 		tempInfo['publisher'] = item.select(ITEM_SPECIFICS)[1].getText()
 		tempInfo['isbn_100'] = item.select(ITEM_SPECIFICS)[2].getText()
 		tempInfo['isbn_13'] = item.select(ITEM_SPECIFICS)[3].getText()
-		tempInfo['trade_in_price'] = item.select(TRADE_IN_SELECTOR)[0].getText()
+		tempInfo['trade_in_price'] = float(item.select(TRADE_IN_SELECTOR)[0].getText().replace('$', ''))
 	except:
 		tempInfo = None
 	return tempInfo
