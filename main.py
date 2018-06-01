@@ -6,6 +6,7 @@ import re
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 #AMAZON_URL = "https://www.amazon.com/s/search-alias%3Dtradein-aps&field-keywords={0}&page={1}"
 AMAZON_URL = "https://www.amazon.com/s/ref=sr_nr_i_0?srs=9187220011&fst=as%3Aoff&rh=i%3Atradein-aps%2Ck%3A{0}%2Ci%3Astripbooks&page={1}"
+USED_PRICE_URL = "https://www.amazon.com/gp/offer-listing/{0}/ref=dp_olp_used?ie=UTF8&condition=used"
 ITEM_SELECTOR = ".s-item-container"
 TRADE_IN_SELECTOR = ".a-color-price"
 ITEM_SPECIFICS = ".a-text-left.a-col-right"
@@ -32,6 +33,17 @@ def getPageCount(page):
 		except:
 			pageCount = 1
 	return pageCount
+
+def extractPrice(itemID):
+	page = grabPage(USED_PRICE_URL.format(itemID))
+	offer = page.select(".olpOffer")[0]
+	price = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
+	try:
+		shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
+	except:
+		shipping = 0
+	return price + shipping
+
 
 
 def grabPage(url):
