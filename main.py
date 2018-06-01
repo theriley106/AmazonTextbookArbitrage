@@ -165,7 +165,7 @@ if __name__ == '__main__':
 	#print extractInfoFromPage(page)
 	#print getResultCount(page).getText()
 	e = search()
-	e.add("biology")
+	e.add(raw_input("Search Term: "))
 	f = e.start()
 	print("{} Profitable items found".format(len(e.profitable)))
 	for val in e.profitable:
