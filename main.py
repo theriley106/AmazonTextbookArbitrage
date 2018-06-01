@@ -69,6 +69,13 @@ def extractInfoFromURL(url):
 	page = grabPage(url)
 	return extractInfoFromPage(page)
 
+def genURLs(keyword, pageCount):
+	urlList = []
+	for i in range(1, pageCount):
+		url = AMAZON_URL.format(keyword, i)
+		urlList.append(url)
+	return urlList
+
 class search(object):
 	def __init__(self):
 		self.results = []
