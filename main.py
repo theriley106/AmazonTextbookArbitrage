@@ -51,6 +51,8 @@ def extractInfoFromItem(item):
 	try:
 		tempInfo = {}
 		tempInfo['title'] = item.select(BOOK_TITLE)[0].getText()
+		tempInfo['item_id'] = str(item.select(".s-access-detail-page")[0]).partition('/dp/')[2].partition("/")[0]
+		tempInfo['item_url'] = "https://www.amazon.com/dp/" + tempInfo['item_id']
 		tempInfo['cover'] = str(item.select(BOOK_COVER)[0]).partition('src="')[2].partition('"')[0]
 		tempInfo['page_count'] = item.select(ITEM_SPECIFICS)[0].getText()
 		tempInfo['publisher'] = item.select(ITEM_SPECIFICS)[1].getText()
