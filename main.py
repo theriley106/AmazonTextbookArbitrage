@@ -15,6 +15,9 @@ BOOK_COVER = ".cfMarker"
 TRADE_IN_REVIEW_BOX = ".a-span-last"
 THREADS = 20
 
+def chunks(l, n):
+	for i in xrange(0, len(l), n):
+		yield l[i:i + n]
 
 def isTradeInEligible(item):
 	# Determines if the item is trade in eligible or not
@@ -87,28 +90,27 @@ class search(object):
 		page = grabPage(url)
 		pageCount = getPageCount(page)
 		print("Keyword: {} Pages: {}".format(keyword, pageCount))
-		for url in genURLs():
-			self.toSearch(url)
+		for url in genURLs(keyword, pageCount):
+			self.toSearch.append(url)
 
-	def extractFromURL(self, url):
-		info = extractFromURL(url)
-		self.results.append(info)
+	def extractFromURL(self, urlList):
+		for url in urlList:
+			info = extractInfoFromURL(url)
+			for val in info:
+				self.results.append(val)
 
 	def start(self):
-		threads = [threading.Thread(target=self.extractFromURL, args=(url,)) for url in self.toSearch]
+		parts = int(len(self.toSearch)/THREADS)
+		if parts != 0:
+			listOfURLs = chunks(self.toSearch, parts)
+		else:
+			listOfURLs = chunks(self.toSearch, 1)
+		threads = [threading.Thread(target=self.extractFromURL, args=(urlList,)) for urlList in listOfURLs]
 		for thread in threads:
 			thread.start()
 		for thread in threads:
 			thread.join()
 		return self.results
-
-
-
-
-
-
-
-
 
 class amazonTextbookDB(object):
 	def __init__(self, arg):
@@ -136,6 +138,10 @@ if __name__ == '__main__':
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+program&rh=i%3Atradein-aps%2Ck%3Apython+program"
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+3&rh=i%3Atradein-aps%2Ck%3Apython+3"
 	url = "https://www.amazon.com/s/ref=sr_pg_2?&fst=p90x%3A1&rh=i%3Atradein-aps%2Ck%3Atextbooks&page=2"
-	page = grabPage(url)
-	print extractInfoFromPage(page)
+	#page = grabPage(url)
+	#print extractInfoFromPage(page)
 	#print getResultCount(page).getText()
+	e = search()
+	e.add("python")
+	f = e.start()
+	print f[0]
