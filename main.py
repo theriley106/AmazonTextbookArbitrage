@@ -2,6 +2,7 @@ import requests
 import bs4
 import threading
 import re
+import RandomHeaders
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 #AMAZON_URL = "https://www.amazon.com/s/search-alias%3Dtradein-aps&field-keywords={0}&page={1}"
@@ -52,7 +53,7 @@ def extractPrice(itemID):
 
 def grabPage(url):
 	for i in range(3):
-		res = requests.get(url, headers=headers, timeout=10)
+		res = requests.get(url, headers=RandomHeaders.LoadHeader(), timeout=10)
 		if res != None:
 			break
 	page = bs4.BeautifulSoup(res.text, 'lxml')
