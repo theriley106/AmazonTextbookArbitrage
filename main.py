@@ -169,4 +169,4 @@ if __name__ == '__main__':
 	f = e.start()
 	print("{} Profitable items found".format(len(e.profitable)))
 	for val in e.profitable:
-		print val['item_url']
+		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price'])
