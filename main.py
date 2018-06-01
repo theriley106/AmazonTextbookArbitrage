@@ -35,14 +35,18 @@ def getPageCount(page):
 	return pageCount
 
 def extractPrice(itemID):
-	page = grabPage(USED_PRICE_URL.format(itemID))
-	offer = page.select(".olpOffer")[0]
-	price = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
 	try:
-		shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
+		page = grabPage(USED_PRICE_URL.format(itemID))
+		offer = page.select(".olpOffer")[0]
+		price = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
+		try:
+			shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
+		except:
+			shipping = 0
+		return price + shipping
 	except:
-		shipping = 0
-	return price + shipping
+		print("Error returning 1000...")
+		return 1000
 
 
 
@@ -98,6 +102,7 @@ class search(object):
 	def __init__(self):
 		self.toSearch = []
 		self.results = []
+		self.profitable = []
 
 	def add(self, keyword):
 		url = AMAZON_URL.format(keyword, 1)
@@ -111,7 +116,11 @@ class search(object):
 		for url in urlList:
 			info = extractInfoFromURL(url)
 			for val in info:
+				val['purchase_price'] = extractPrice(val['item_id'])
 				self.results.append(val)
+				if val['purchase_price'] < val['trade_in_price']:
+					self.profitable.append(val)
+					print("Profitable item found")
 
 	def start(self):
 		parts = int(len(self.toSearch)/THREADS)
@@ -156,6 +165,8 @@ if __name__ == '__main__':
 	#print extractInfoFromPage(page)
 	#print getResultCount(page).getText()
 	e = search()
-	e.add("python")
+	e.add("biology")
 	f = e.start()
-	print f[0]
+	print("{} Profitable items found".format(len(e.profitable)))
+	for val in e.profitable:
+		print val['item_url']
