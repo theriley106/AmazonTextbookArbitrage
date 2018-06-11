@@ -3,6 +3,7 @@ import bs4
 import threading
 import re
 import RandomHeaders
+import random
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 #AMAZON_URL = "https://www.amazon.com/s/search-alias%3Dtradein-aps&field-keywords={0}&page={1}"
@@ -15,7 +16,12 @@ ITEM_SPECIFICS = ".a-text-left.a-col-right"
 BOOK_TITLE = ".s-access-title"
 BOOK_COVER = ".cfMarker"
 TRADE_IN_REVIEW_BOX = ".a-span-last"
-THREADS = 20
+THREADS = 50
+try:
+	proxyList = open("proxyAddress.txt").read().strip()
+except:
+	raise Exception("Proxy not defined")
+proxyStatus = {}
 
 def chunks(l, n):
 	for i in xrange(0, len(l), n):
@@ -49,11 +55,15 @@ def extractPrice(itemID):
 		print("Error returning 1000...")
 		return 1000
 
-
-
 def grabPage(url):
-	for i in range(3):
-		res = requests.get(url, headers=RandomHeaders.LoadHeader(), timeout=10)
+	for i in range(10):
+		proxy = random.choice(proxyList)
+		proxies = {"http": proxy, "https": proxy}
+		try:
+			res = requests.get(url, headers=RandomHeaders.LoadHeader(), proxies=proxies, timeout=10)
+		except:
+			print("Proxy error")
+			res = None
 		if res != None:
 			break
 	page = bs4.BeautifulSoup(res.text, 'lxml')
