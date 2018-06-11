@@ -18,7 +18,7 @@ BOOK_COVER = ".cfMarker"
 TRADE_IN_REVIEW_BOX = ".a-span-last"
 THREADS = 50
 try:
-	proxyList = open("proxyAddress.txt").read().strip()
+	proxy = open("proxyAddress.txt").read().strip()
 except:
 	raise Exception("Proxy not defined")
 proxyStatus = {}
@@ -57,7 +57,6 @@ def extractPrice(itemID):
 
 def grabPage(url):
 	for i in range(10):
-		proxy = random.choice(proxyList)
 		proxies = {"http": proxy, "https": proxy}
 		try:
 			res = requests.get(url, headers=RandomHeaders.LoadHeader(), proxies=proxies, timeout=10)
