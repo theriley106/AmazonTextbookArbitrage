@@ -16,7 +16,7 @@ ITEM_SPECIFICS = ".a-text-left.a-col-right"
 BOOK_TITLE = ".s-access-title"
 BOOK_COVER = ".cfMarker"
 TRADE_IN_REVIEW_BOX = ".a-span-last"
-THREADS = 50
+THREADS = 10
 try:
 	proxy = open("proxyAddress.txt").read().strip()
 except:
