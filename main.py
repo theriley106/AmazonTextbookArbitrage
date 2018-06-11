@@ -60,7 +60,8 @@ def grabPage(url):
 		proxies = {"http": proxy, "https": proxy}
 		try:
 			res = requests.get(url, headers=RandomHeaders.LoadHeader(), proxies=proxies, timeout=10)
-		except:
+		except Exception as exp:
+			print exp
 			print("Proxy error")
 			res = None
 		if res != None:
