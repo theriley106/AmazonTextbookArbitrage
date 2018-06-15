@@ -9,6 +9,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 #AMAZON_URL = "https://www.amazon.com/s/search-alias%3Dtradein-aps&field-keywords={0}&page={1}"
 AMAZON_URL = "https://www.amazon.com/s/ref=sr_nr_i_0?srs=9187220011&fst=as%3Aoff&rh=i%3Atradein-aps%2Ck%3A{0}%2Ci%3Astripbooks&page={1}"
 USED_PRICE_URL = "https://www.amazon.com/gp/offer-listing/{0}/ref=dp_olp_used?ie=UTF8&condition=used"
+ALL_PAGE = "https://www.amazon.com/gp/offer-listing/{0}/ref=olp_f_new?ie=UTF8&f_all=true&f_new=true&f_used=true"
 ITEM_SELECTOR = ".s-item-container"
 TRADE_IN_SELECTOR = ".a-color-price"
 ITEM_SPECIFICS = ".a-text-left.a-col-right"
@@ -21,6 +22,7 @@ try:
 	proxy = open("proxyAddress.txt").read().strip()
 except:
 	raise Exception("Proxy not defined")
+proxy = {}
 proxyStatus = {}
 
 def chunks(l, n):
@@ -30,6 +32,22 @@ def chunks(l, n):
 def isTradeInEligible(item):
 	# Determines if the item is trade in eligible or not
 	return ('tradein' in item.select(TRADE_IN_REVIEW_BOX)[0])
+
+def extractAllPageInfo(asin):
+	info = {}
+	url = ALL_PAGE.format(asin)
+	page = grabPage(url)
+	offer = page.select(".olpOffer")[0]
+	try:
+		info['comment'] = offer.select('.expandedNote')[0].getText().strip().partition("\n")[0]
+	except:
+		info['comment'] = offer.select(".comments")[0].getText().strip().partition("\n")[0]
+	info['sellerName'] = offer.select(".olpSellerName")[0].getText().strip()
+	sellerColumn = offer.select(".olpSellerColumn")
+	info['percentRating'] = sellerColumn[0].select("b")[0].getText().strip()
+	info['totalRatings'] = int(''.join(re.findall("\d+", str(sellerColumn[0].select(".a-spacing-small")[0].getText()).partition("(")[2].partition(")")[0])))
+	info['arrivalDate'] = offer.select(".a-expander-partial-collapse-content")[0].getText().strip()
+	return info
 
 def getPageCount(page):
 	try:
@@ -57,12 +75,11 @@ def extractPrice(itemID):
 
 def grabPage(url):
 	for i in range(10):
+
 		proxies = {"http": proxy, "https": proxy}
 		try:
 			res = requests.get(url, headers=RandomHeaders.LoadHeader(), proxies=proxies, timeout=10)
 		except Exception as exp:
-			print exp
-			print("Proxy error")
 			res = None
 		if res != None:
 			break
@@ -167,7 +184,8 @@ class amazonTextbookDB(object):
 
 
 if __name__ == '__main__':
-	url = "https://www.amazon.com/s/ref=sr_nr_i_0?srs=9187220011&fst=as%3Aoff&rh=i%3Atradein-aps%2Ck%3Abiology%2Ci%3Astripbooks&keywords=biology&ie=UTF8&qid=1527811678"
+	print extractAllPageInfo('0134093410')
+	'''url = "https://www.amazon.com/s/ref=sr_nr_i_0?srs=9187220011&fst=as%3Aoff&rh=i%3Atradein-aps%2Ck%3Abiology%2Ci%3Astripbooks&keywords=biology&ie=UTF8&qid=1527811678"
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+2&rh=i%3Atradein-aps%2Ck%3Apython+2"
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+program&rh=i%3Atradein-aps%2Ck%3Apython+program"
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+3&rh=i%3Atradein-aps%2Ck%3Apython+3"
@@ -180,4 +198,4 @@ if __name__ == '__main__':
 	f = e.start()
 	print("{} Profitable items found".format(len(e.profitable)))
 	for val in e.profitable:
-		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price']))
+		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price']))'''
