@@ -51,13 +51,13 @@ def extractAllPageInfo(asin):
 	except:
 		shipping = 0
 	info['shipping'] = shipping
-	info['total'] = price + shipping
+	info['total'] = info['price'] + shipping
 	info['sellerName'] = offer.select(".olpSellerName")[0].getText().strip()
 	sellerColumn = offer.select(".olpSellerColumn")
 	info['percentRating'] = sellerColumn[0].select("b")[0].getText().strip()
 	info['totalRatings'] = int(''.join(re.findall("\d+", str(sellerColumn[0].select(".a-spacing-small")[0].getText()).partition("(")[2].partition(")")[0])))
 	info['arrivalDate'] = offer.select(".a-expander-partial-collapse-content")[0].getText().strip()
-	info['condition'] = offer.select(".olpCondition")[0].getText().strip()
+	info['condition'] = offer.select(".olpCondition")[0].getText().strip().replace("  ", "").replace("\n", " ")
 	return info
 
 def getPageCount(page):
