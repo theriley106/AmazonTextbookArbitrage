@@ -45,6 +45,13 @@ def extractAllPageInfo(asin):
 			info['comment'] = offer.select(".comments")[0].getText().strip().partition("\n")[0]
 		except:
 			info['comment'] = ""
+	info['price'] = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
+	try:
+		shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
+	except:
+		shipping = 0
+	info['shipping'] = shipping
+	info['total'] = price + shipping
 	info['sellerName'] = offer.select(".olpSellerName")[0].getText().strip()
 	sellerColumn = offer.select(".olpSellerColumn")
 	info['percentRating'] = sellerColumn[0].select("b")[0].getText().strip()
