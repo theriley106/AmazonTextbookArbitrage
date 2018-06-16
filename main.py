@@ -173,7 +173,7 @@ class search(object):
 			for val in info:
 				val['purchase_price'] = extractPrice(val['item_id'])
 				self.results.append(val)
-				if val['purchase_price'] < val['trade_in_price']:
+				if val['purchase_price'] > val['trade_in_price']:
 					self.profitable.append(val)
 					print("Profitable item found")
 
@@ -230,7 +230,7 @@ if __name__ == '__main__':
 	e.add(raw_input("Search Term: "))
 	f = e.start()
 	AllNewsInfo = []
-	t = random.choice(list(e.profitable))
+	t = random.choice(list(e.profitable))['item_id']
 	AllNewsInfo.append(extractAllPageInfo(t).keys())
 	for val in e.profitable:
 		tInfo = extractAllPageInfo(val['item_id'])
