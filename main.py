@@ -76,7 +76,8 @@ def extractAllPageInfo(asin):
 						info['book_cover_image'] = ""
 			return info
 		except:
-			return None
+			pass
+	return None
 
 def getPageCount(page):
 	try:
@@ -235,11 +236,14 @@ if __name__ == '__main__':
 	t = random.choice(list(e.profitable))['item_id']
 	AllNewsInfo.append(list(extractAllPageInfo(t).keys()))
 	for val in e.profitable:
-		tInfo = extractAllPageInfo(val['item_id'])
-		if tInfo != None:
-			tInfo['profit'] = round(float(val['trade_in_price']), 2) - round(float(val['purchase_price'], 2))
-			AllNewsInfo.append(list(tInfo.values()))
-			print("appended")
+		try:
+			tInfo = extractAllPageInfo(val['item_id'])
+			if tInfo != None:
+				tInfo['profit'] = round(float(val['trade_in_price']), 2) - round(float(val['purchase_price'], 2))
+				AllNewsInfo.append(list(tInfo.values()))
+				print("appended")
+		except:
+			pass
 	with open('info.csv', 'wb') as myfile:
 		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 		wr.writerows(AllNewsInfo)
