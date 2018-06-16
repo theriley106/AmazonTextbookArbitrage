@@ -239,11 +239,11 @@ if __name__ == '__main__':
 		try:
 			tInfo = extractAllPageInfo(val['item_id'])
 			if tInfo != None:
-				tInfo['profit'] = round(float(val['trade_in_price']), 2) - round(float(val['purchase_price'], 2))
+				tInfo['profit'] = round(float(val['trade_in_price']), 2) - round(float(val['purchase_price']), 2)
 				AllNewsInfo.append(list(tInfo.values()))
 				print("appended")
-		except:
-			pass
+		except Exception as exp:
+			print exp
 	with open('info.csv', 'wb') as myfile:
 		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 		wr.writerows(AllNewsInfo)
