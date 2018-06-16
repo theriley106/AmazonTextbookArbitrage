@@ -41,15 +41,15 @@ def extractAllPageInfo(asin):
 			page = grabPage(url)
 			offer = page.select(".olpOffer")[0]
 			try:
-				info['comment'] = offer.select('.expandedNote')[0].getText().strip().partition("\n")[0]
+				info['comment'] = offer.select('.expandedNote')[0].getText().strip().partition("\n")[0][:75]
 			except:
 				try:
-					info['comment'] = offer.select(".comments")[0].getText().strip().partition("\n")[0]
+					info['comment'] = offer.select(".comments")[0].getText().strip().partition("\n")[0][:75]
 				except:
 					info['comment'] = ""
-			info['price'] = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
+			info['price'] = round(float(offer.select(".olpOfferPrice")[0].getText().replace("$", "")), 2)
 			try:
-				shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
+				shipping = round(float(offer.select(".olpShippingPrice")[0].getText().replace("$", "")), 2)
 			except:
 				shipping = 0
 			info['shipping'] = shipping
@@ -66,6 +66,7 @@ def extractAllPageInfo(asin):
 			info['author'] = page.select("#olpProductByline")[0].getText().partition('by')[2].partition('\n')[0]
 			info['book_review_star'] = float(page.select(".a-icon-alt")[0].getText().partition(" ")[0])
 			info['profit'] = ""
+			info['url'] = "https://www.amazon.com/dp/{}".format(asin)
 			for val in page.select("img"):
 				if 'return to' in str(val).lower():
 					try:
@@ -174,7 +175,7 @@ class search(object):
 			for val in info:
 				val['purchase_price'] = extractPrice(val['item_id'])
 				self.results.append(val)
-				if val['purchase_price'] > val['trade_in_price']:
+				if val['purchase_price'] < val['trade_in_price']:
 					self.profitable.append(val)
 					print("Profitable item found")
 
@@ -228,7 +229,7 @@ if __name__ == '__main__':
 	for val in e.profitable:
 		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price']))'''
 	e = search()
-	e.add(raw_input("Search Term: "))
+	e.add('biology')
 	f = e.start()
 	AllNewsInfo = []
 	t = random.choice(list(e.profitable))['item_id']
@@ -236,7 +237,7 @@ if __name__ == '__main__':
 	for val in e.profitable:
 		tInfo = extractAllPageInfo(val['item_id'])
 		if tInfo != None:
-			tInfo['profit'] = val['trade_in_price'] - val['purchase_price']
+			tInfo['profit'] = round(float(val['trade_in_price']), 2) - round(float(val['purchase_price'], 2))
 			AllNewsInfo.append(list(tInfo.values()))
 	with open('info.csv', 'wb') as myfile:
 		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
