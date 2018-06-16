@@ -58,6 +58,18 @@ def extractAllPageInfo(asin):
 	info['totalRatings'] = int(''.join(re.findall("\d+", str(sellerColumn[0].select(".a-spacing-small")[0].getText()).partition("(")[2].partition(")")[0])))
 	info['arrivalDate'] = offer.select(".a-expander-partial-collapse-content")[0].getText().strip()
 	info['condition'] = offer.select(".olpCondition")[0].getText().strip().replace("  ", "").replace("\n", " ")
+	info['title'] = page.select("#olpProductDetails .a-spacing-none")[0].getText().strip().replace("  ", "").replace("\n", " ")
+	info['id'] = asin
+	info['book_reviews'] = int(page.select(".a-size-small .a-link-normal")[0].getText().partition("   ")[2].partition(" c")[0])
+	info['author'] = page.select("#olpProductByline")[0].getText().partition('by')[2].partition('\n')[0]
+	info['book_review_star'] = float(page.select(".a-icon-alt")[0].getText().partition(" ")[0])
+	for val in page.select("img"):
+		if 'return to' in str(val).lower():
+			try:
+				info['book_cover_image'] = str(val).partition('src="')[2].partition('"')[0]
+				break
+			except:
+				info['book_cover_image'] = ""
 	return info
 
 def getPageCount(page):
