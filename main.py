@@ -4,6 +4,7 @@ import threading
 import re
 import RandomHeaders
 import random
+import csv
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 #AMAZON_URL = "https://www.amazon.com/s/search-alias%3Dtradein-aps&field-keywords={0}&page={1}"
@@ -22,7 +23,6 @@ try:
 	proxy = open("proxyAddress.txt").read().strip()
 except:
 	raise Exception("Proxy not defined")
-proxy = {}
 proxyStatus = {}
 
 def chunks(l, n):
@@ -34,43 +34,47 @@ def isTradeInEligible(item):
 	return ('tradein' in item.select(TRADE_IN_REVIEW_BOX)[0])
 
 def extractAllPageInfo(asin):
-	info = {}
-	url = ALL_PAGE.format(asin)
-	page = grabPage(url)
-	offer = page.select(".olpOffer")[0]
 	try:
-		info['comment'] = offer.select('.expandedNote')[0].getText().strip().partition("\n")[0]
-	except:
+		info = {}
+		url = ALL_PAGE.format(asin)
+		page = grabPage(url)
+		offer = page.select(".olpOffer")[0]
 		try:
-			info['comment'] = offer.select(".comments")[0].getText().strip().partition("\n")[0]
+			info['comment'] = offer.select('.expandedNote')[0].getText().strip().partition("\n")[0]
 		except:
-			info['comment'] = ""
-	info['price'] = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
-	try:
-		shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
-	except:
-		shipping = 0
-	info['shipping'] = shipping
-	info['total'] = info['price'] + shipping
-	info['sellerName'] = offer.select(".olpSellerName")[0].getText().strip()
-	sellerColumn = offer.select(".olpSellerColumn")
-	info['percentRating'] = sellerColumn[0].select("b")[0].getText().strip()
-	info['totalRatings'] = int(''.join(re.findall("\d+", str(sellerColumn[0].select(".a-spacing-small")[0].getText()).partition("(")[2].partition(")")[0])))
-	info['arrivalDate'] = offer.select(".a-expander-partial-collapse-content")[0].getText().strip()
-	info['condition'] = offer.select(".olpCondition")[0].getText().strip().replace("  ", "").replace("\n", " ")
-	info['title'] = page.select("#olpProductDetails .a-spacing-none")[0].getText().strip().replace("  ", "").replace("\n", " ")
-	info['id'] = asin
-	info['book_reviews'] = int(page.select(".a-size-small .a-link-normal")[0].getText().partition("   ")[2].partition(" c")[0])
-	info['author'] = page.select("#olpProductByline")[0].getText().partition('by')[2].partition('\n')[0]
-	info['book_review_star'] = float(page.select(".a-icon-alt")[0].getText().partition(" ")[0])
-	for val in page.select("img"):
-		if 'return to' in str(val).lower():
 			try:
-				info['book_cover_image'] = str(val).partition('src="')[2].partition('"')[0]
-				break
+				info['comment'] = offer.select(".comments")[0].getText().strip().partition("\n")[0]
 			except:
-				info['book_cover_image'] = ""
-	return info
+				info['comment'] = ""
+		info['price'] = float(offer.select(".olpOfferPrice")[0].getText().replace("$", ""))
+		try:
+			shipping = float(offer.select(".olpShippingPrice")[0].getText().replace("$", ""))
+		except:
+			shipping = 0
+		info['shipping'] = shipping
+		info['total'] = info['price'] + shipping
+		info['sellerName'] = offer.select(".olpSellerName")[0].getText().strip()
+		sellerColumn = offer.select(".olpSellerColumn")
+		info['percentRating'] = sellerColumn[0].select("b")[0].getText().strip()
+		info['totalRatings'] = int(''.join(re.findall("\d+", str(sellerColumn[0].select(".a-spacing-small")[0].getText()).partition("(")[2].partition(")")[0])))
+		info['arrivalDate'] = offer.select(".a-expander-partial-collapse-content")[0].getText().strip()
+		info['condition'] = offer.select(".olpCondition")[0].getText().strip().replace("  ", "").replace("\n", " ")
+		info['title'] = page.select("#olpProductDetails .a-spacing-none")[0].getText().strip().replace("  ", "").replace("\n", " ")
+		info['id'] = asin
+		info['book_reviews'] = int(page.select(".a-size-small .a-link-normal")[0].getText().partition("   ")[2].partition(" c")[0])
+		info['author'] = page.select("#olpProductByline")[0].getText().partition('by')[2].partition('\n')[0]
+		info['book_review_star'] = float(page.select(".a-icon-alt")[0].getText().partition(" ")[0])
+		info['profit'] = ""
+		for val in page.select("img"):
+			if 'return to' in str(val).lower():
+				try:
+					info['book_cover_image'] = str(val).partition('src="')[2].partition('"')[0]
+					break
+				except:
+					info['book_cover_image'] = ""
+		return info
+	except:
+		return None
 
 def getPageCount(page):
 	try:
@@ -207,7 +211,7 @@ class amazonTextbookDB(object):
 
 
 if __name__ == '__main__':
-	print extractAllPageInfo('0134093410')
+	#print extractAllPageInfo('0134093410')
 	'''url = "https://www.amazon.com/s/ref=sr_nr_i_0?srs=9187220011&fst=as%3Aoff&rh=i%3Atradein-aps%2Ck%3Abiology%2Ci%3Astripbooks&keywords=biology&ie=UTF8&qid=1527811678"
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+2&rh=i%3Atradein-aps%2Ck%3Apython+2"
 	#url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=srs%3D9187220011%26search-alias%3Dtradein-aps&field-keywords=python+program&rh=i%3Atradein-aps%2Ck%3Apython+program"
@@ -222,3 +226,17 @@ if __name__ == '__main__':
 	print("{} Profitable items found".format(len(e.profitable)))
 	for val in e.profitable:
 		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price']))'''
+	e = search()
+	e.add(raw_input("Search Term: "))
+	f = e.start()
+	AllNewsInfo = []
+	t = random.choice(list(e.profitable))
+	AllNewsInfo.append(extractAllPageInfo(t).keys())
+	for val in e.profitable:
+		tInfo = extractAllPageInfo(val['item_id'])
+		if tInfo != None:
+			tInfo['profit'] = val['trade_in_price'] - val['purchase_price']
+			AllNewsInfo.append(tInfo)
+	with open('info.csv', 'wb') as myfile:
+		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+		wr.writerow(AllNewsInfo)
