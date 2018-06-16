@@ -239,4 +239,4 @@ if __name__ == '__main__':
 			AllNewsInfo.append(tInfo)
 	with open('info.csv', 'wb') as myfile:
 		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-		wr.writerow(AllNewsInfo)
+		wr.writerows(AllNewsInfo)
