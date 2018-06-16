@@ -231,12 +231,12 @@ if __name__ == '__main__':
 	f = e.start()
 	AllNewsInfo = []
 	t = random.choice(list(e.profitable))['item_id']
-	AllNewsInfo.append(extractAllPageInfo(t).keys())
+	AllNewsInfo.append(list(extractAllPageInfo(t).keys()))
 	for val in e.profitable:
 		tInfo = extractAllPageInfo(val['item_id'])
 		if tInfo != None:
 			tInfo['profit'] = val['trade_in_price'] - val['purchase_price']
-			AllNewsInfo.append(tInfo)
+			AllNewsInfo.append(list(tInfo.values()))
 	with open('info.csv', 'wb') as myfile:
 		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 		wr.writerows(AllNewsInfo)
