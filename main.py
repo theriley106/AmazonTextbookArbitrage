@@ -5,6 +5,7 @@ import re
 import RandomHeaders
 import random
 import csv
+import time
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 #AMAZON_URL = "https://www.amazon.com/s/search-alias%3Dtradein-aps&field-keywords={0}&page={1}"
@@ -229,6 +230,7 @@ if __name__ == '__main__':
 	print("{} Profitable items found".format(len(e.profitable)))
 	for val in e.profitable:
 		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price']))'''
+	start_time = time.clock()
 	e = search()
 	e.add('biology')
 	e.add('chemistry')
@@ -253,3 +255,15 @@ if __name__ == '__main__':
 	with open('info.csv', 'wb') as myfile:
 		wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 		wr.writerows(AllNewsInfo)
+	timeSeconds = round(float(time.clock() - start_time), 2)
+	subject = "{} Profitable Items found in {} Seconds".format(len(AllNewsInfo), timeSeconds)
+	try:
+		import sendText
+		sendText.sendText(subject)
+		import sendEmail
+		sendEmail.sendToMe(subject)
+	except:
+		try:
+			sendText.sendText("Error on Send Email")
+		except:
+			pass
