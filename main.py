@@ -231,6 +231,12 @@ if __name__ == '__main__':
 		print("{} - ${}".format(val['item_url'],  val['trade_in_price'] - val['purchase_price']))'''
 	e = search()
 	e.add('biology')
+	e.add('chemistry')
+	e.add('psychology')
+	e.add('philosophy')
+	e.add('education')
+	e.add('textbook')
+	e.add('computer')
 	f = e.start()
 	AllNewsInfo = []
 	t = random.choice(list(e.profitable))['item_id']
